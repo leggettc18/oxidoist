@@ -7,6 +7,7 @@ use std::env;
 
 #[derive(StructOpt, Debug)]
 enum Cli {
+    /// Get data from your todoist account.
     Get {
         #[structopt(subcommand)]
         category: Category,
@@ -15,7 +16,9 @@ enum Cli {
 
 #[derive(StructOpt, Debug)]
 enum Category {
+    /// Get all Projects on your account.
     Projects(Projects),
+    /// Get Project by its id.
     Project(Project),
 }
 
@@ -26,6 +29,7 @@ struct Projects {
 
 #[derive(StructOpt, Debug)]
 struct Project {
+    /// The Project's ID. Use the `get projects` command to find the project with the id you want.
     id: u32,
 }
 
