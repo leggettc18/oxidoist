@@ -32,7 +32,6 @@ struct Project {
 #[tokio::main]
 async fn main() -> Result<(), TodoistAPIError> {
     let args = Cli::from_args();
-    println!("{:#?}", args);
     let token = env::var("TODOIST_API_KEY").unwrap();
     let todoist_api_object = TodoistAPI::new(token.as_str()).unwrap();
     match args {
