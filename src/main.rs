@@ -1,6 +1,6 @@
 use structopt::StructOpt;
 use oxidoist_api::TodoistAPI;
-use oxidoist_api::Project as ApiProject;
+use oxidoist_api::Project;
 use oxidoist_api::TodoistAPIError;
 
 use std::env;
@@ -17,18 +17,18 @@ enum Cli {
 #[derive(StructOpt, Debug)]
 enum Category {
     /// Get all Projects on your account.
-    Projects(Projects),
+    Projects(ProjectsArgs),
     /// Get Project by its id.
-    Project(Project),
+    Project(ProjectArgs),
 }
 
 #[derive(StructOpt, Debug)]
-struct Projects {
+struct ProjectsArgs {
 
 }
 
 #[derive(StructOpt, Debug)]
-struct Project {
+struct ProjectArgs {
     /// The Project's ID. Use the `get projects` command to find the project with the id you want.
     id: u32,
 }
@@ -42,22 +42,15 @@ async fn main() -> Result<(), TodoistAPIError> {
         Cli::Get { category } => {
             match category {
                 Category::Projects(_) => {
-                    let projects: Vec<ApiProject> = todoist_api_object.get_projects().await?;
+                    let projects: Vec<Project> = todoist_api_object.get_projects().await?;
                     println!("{:#?}", projects);
                 }
                 Category::Project(project) => {
-                    let project: ApiProject = todoist_api_object.get_project(project.id).await?;
+                    let project: Project = todoist_api_object.get_project(project.id).await?;
                     println!("{:#?}", project);
                 }
             }
         }
     }
-    /* if args.verb == "get" {
-        if args.datatype == "projects" {
-            let projects: Vec<Project> = todoist_api_object.get_projects().await?;
-            println!("{:#?}", projects);
-        }
-    } */
-    
     Ok(())
 }
