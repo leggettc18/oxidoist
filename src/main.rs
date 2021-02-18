@@ -1,6 +1,6 @@
 use structopt::StructOpt;
 use oxidoist_api::TodoistAPI;
-use oxidoist_api::Project;
+use oxidoist_api::{ Project, Task };
 use oxidoist_api::TodoistAPIError;
 
 use std::env;
@@ -20,6 +20,8 @@ enum Category {
     Projects(ProjectsArgs),
     /// Get Project by its id.
     Project(ProjectArgs),
+    /// Get all active tasks.
+    Tasks(TasksArgs),
 }
 
 #[derive(StructOpt, Debug)]
@@ -31,6 +33,11 @@ struct ProjectsArgs {
 struct ProjectArgs {
     /// The Project's ID. Use the `get projects` command to find the project with the id you want.
     id: u32,
+}
+
+#[derive(StructOpt, Debug)]
+struct TasksArgs {
+
 }
 
 #[tokio::main]
@@ -48,6 +55,10 @@ async fn main() -> Result<(), TodoistAPIError> {
                 Category::Project(project) => {
                     let project: Project = todoist_api_object.get_project(project.id).await?;
                     println!("{:#?}", project);
+                }
+                Category::Tasks(_) => {
+                    let tasks: Vec<Task> = todoist_api_object.get_tasks().await?;
+                    println!("{:#?}", tasks);
                 }
             }
         }
