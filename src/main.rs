@@ -1,6 +1,8 @@
-use oxidoist_api::TodoistAPI;
-use oxidoist_api::TodoistAPIError;
-use oxidoist_api::{Project, Task};
+use oxidoist_api::{
+    api::{TodoistAPI, TodoistAPIError},
+    project::Project,
+    task::Task,
+};
 use structopt::clap::arg_enum;
 use structopt::StructOpt;
 
