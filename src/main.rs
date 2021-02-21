@@ -48,20 +48,21 @@ async fn main() -> Result<(), TodoistAPIError> {
     match args {
         Cli::Get { category } => match category {
             Category::Projects(_) => {
-                let projects: Vec<Project> = todoist_api_object.get_projects().await?;
+                let projects: Vec<Project> = Project::get_all(&todoist_api_object).await?;
                 println!("{:#?}", projects);
             }
             Category::Project(project) => {
-                let project: Project = todoist_api_object.get_project(project.id).await?;
+                let project: Project = Project::get(project.id, &todoist_api_object).await?;
                 println!("{:#?}", project);
             }
             Category::Tasks(args) => match args.project_id {
                 Some(id) => {
-                    let tasks: Vec<Task> = todoist_api_object.get_project_tasks(id).await?;
+                    let project: Project = Project::get(id, &todoist_api_object).await?;
+                    let tasks: Vec<Task> = project.get_tasks(&todoist_api_object).await?;
                     println!("{:#?}", tasks);
                 }
                 None => {
-                    let tasks: Vec<Task> = todoist_api_object.get_tasks().await?;
+                    let tasks: Vec<Task> = Task::get_all(&todoist_api_object).await?;
                     println!("{:#?}", tasks);
                 }
             },
