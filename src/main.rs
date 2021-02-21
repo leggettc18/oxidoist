@@ -1,6 +1,7 @@
 use oxidoist_api::TodoistAPI;
 use oxidoist_api::TodoistAPIError;
 use oxidoist_api::{Project, Task};
+use structopt::clap::arg_enum;
 use structopt::StructOpt;
 
 use std::env;
@@ -24,6 +25,13 @@ enum Category {
     Tasks(TasksArgs),
 }
 
+arg_enum! {
+    #[derive(Debug)]
+    enum ProjectSubCategory {
+        Tasks
+    }
+}
+
 #[derive(StructOpt, Debug)]
 struct ProjectsArgs {}
 
@@ -31,6 +39,9 @@ struct ProjectsArgs {}
 struct ProjectArgs {
     /// The Project's ID. Use the `get projects` command to find the project with the id you want.
     id: u64,
+    /// Get subclass items belonging to the given project (sections, tasks, etc).
+    #[structopt(possible_values = &ProjectSubCategory::variants(), case_insensitive = true)]
+    sub_category: Option<ProjectSubCategory>,
 }
 
 #[derive(StructOpt, Debug)]
@@ -51,9 +62,19 @@ async fn main() -> Result<(), TodoistAPIError> {
                 let projects: Vec<Project> = Project::get_all(&todoist_api_object).await?;
                 println!("{:#?}", projects);
             }
-            Category::Project(project) => {
-                let project: Project = Project::get(project.id, &todoist_api_object).await?;
-                println!("{:#?}", project);
+            Category::Project(project_args) => {
+                let project: Project = Project::get(project_args.id, &todoist_api_object).await?;
+                match project_args.sub_category {
+                    None => {
+                        println!("{:#?}", project);
+                    }
+                    Some(sub) => match sub {
+                        ProjectSubCategory::Tasks => {
+                            let tasks: Vec<Task> = project.get_tasks(&todoist_api_object).await?;
+                            println!("{:#?}", tasks);
+                        }
+                    },
+                }
             }
             Category::Tasks(args) => match args.project_id {
                 Some(id) => {
