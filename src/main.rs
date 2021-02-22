@@ -57,7 +57,11 @@ struct TasksArgs {
 }
 
 #[derive(StructOpt, Debug)]
-struct SectionsArgs {}
+struct SectionsArgs {
+    /// Supply a project ID to filter the sections to those that are part of a particular project
+    #[structopt(short)]
+    project_id: Option<u64>,
+}
 
 #[tokio::main]
 async fn main() -> Result<(), TodoistAPIError> {
@@ -95,10 +99,17 @@ async fn main() -> Result<(), TodoistAPIError> {
                     println!("{:#?}", tasks);
                 }
             },
-            Category::Sections(_) => {
-                let sections: Vec<Section> = Section::get_all(&todoist_api_object).await?;
-                println!("{:#?}", sections);
-            }
+            Category::Sections(args) => match args.project_id {
+                Some(id) => {
+                    let project: Project = Project::get(id, &todoist_api_object).await?;
+                    let sections: Vec<Section> = project.get_sections(&todoist_api_object).await?;
+                    println!("{:#?}", sections);
+                }
+                None => {
+                    let sections: Vec<Section> = Section::get_all(&todoist_api_object).await?;
+                    println!("{:#?}", sections);
+                }
+            },
         },
     }
     Ok(())
