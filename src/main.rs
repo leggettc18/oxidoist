@@ -1,5 +1,6 @@
 use oxidoist_api::{
     api::{TodoistAPI, TodoistAPIError},
+    label::Label,
     project::Project,
     section::Section,
     task::Task,
@@ -28,6 +29,8 @@ enum Category {
     Tasks(TasksArgs),
     /// Get all Sections.
     Sections(SectionsArgs),
+    /// Get all Lablels.
+    Labels(LabelsArgs),
 }
 
 arg_enum! {
@@ -62,6 +65,9 @@ struct SectionsArgs {
     #[structopt(short)]
     project_id: Option<u64>,
 }
+
+#[derive(StructOpt, Debug)]
+struct LabelsArgs {}
 
 #[tokio::main]
 async fn main() -> Result<(), TodoistAPIError> {
@@ -110,6 +116,10 @@ async fn main() -> Result<(), TodoistAPIError> {
                     println!("{:#?}", sections);
                 }
             },
+            Category::Labels(_) => {
+                let labels: Vec<Label> = Label::get_all(&todoist_api_object).await?;
+                println!("{:#?}", labels);
+            }
         },
     }
     Ok(())
