@@ -49,9 +49,11 @@ struct CreateTaskArgs {
     /// Task content.
     #[structopt(short)]
     content: String,
+    /// Project ID for the new task to go in.
     #[structopt(short)]
     project_id: Option<u64>,
     #[structopt(short)]
+    /// A string in natural language describing the due date and time (i.e. "tomorrow at noon", or "every day").
     due_string: Option<String>,
 }
 
