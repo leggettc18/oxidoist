@@ -3,7 +3,7 @@ use oxidoist_api::{
     label::Label,
     project::Project,
     section::Section,
-    task::Task,
+    task::{CreateTaskParamsBuilder, Task},
 };
 use structopt::clap::arg_enum;
 use structopt::StructOpt;
@@ -16,6 +16,11 @@ enum Cli {
     Get {
         #[structopt(subcommand)]
         category: Category,
+    },
+    /// Create a task, project, section, etc.
+    Create {
+        #[structopt(subcommand)]
+        category: CreateCategory,
     },
 }
 
@@ -31,6 +36,19 @@ enum Category {
     Sections(SectionsArgs),
     /// Get all Lablels.
     Labels(LabelsArgs),
+}
+
+#[derive(StructOpt, Debug)]
+enum CreateCategory {
+    /// Create a new task.
+    Task(CreateTaskArgs),
+}
+
+#[derive(StructOpt, Debug)]
+struct CreateTaskArgs {
+    /// Task content.
+    #[structopt(short)]
+    content: String,
 }
 
 arg_enum! {
@@ -120,6 +138,16 @@ async fn main() -> Result<(), TodoistAPIError> {
             Category::Labels(_) => {
                 let labels: Vec<Label> = Label::get_all(&todoist_api_object).await?;
                 println!("{:#?}", labels);
+            }
+        },
+        Cli::Create { category } => match category {
+            CreateCategory::Task(args) => {
+                let new_task = CreateTaskParamsBuilder::default()
+                    .content(args.content)
+                    .build()
+                    .map_err(TodoistAPIError::ParamsBuilderError)?;
+                let task = Task::create(&new_task, &todoist_api_object).await?;
+                println!("{:#?}", task);
             }
         },
     }
