@@ -51,6 +51,8 @@ struct CreateTaskArgs {
     content: String,
     #[structopt(short)]
     project_id: Option<u64>,
+    #[structopt(short)]
+    due_string: Option<String>,
 }
 
 arg_enum! {
@@ -147,6 +149,7 @@ async fn main() -> Result<(), TodoistAPIError> {
                 let new_task = CreateTaskParamsBuilder::default()
                     .content(args.content)
                     .project_id(args.project_id)
+                    .due_string(args.due_string)
                     .build()
                     .map_err(TodoistAPIError::ParamsBuilderError)?;
                 let task = Task::create(&new_task, &todoist_api_object).await?;
