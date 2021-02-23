@@ -72,7 +72,8 @@ struct LabelsArgs {}
 #[tokio::main]
 async fn main() -> Result<(), TodoistAPIError> {
     let args = Cli::from_args();
-    let token = env::var("TODOIST_API_KEY").unwrap();
+    let token = env::var("TODOIST_API_KEY")
+        .expect("Please provide a TODOIST_API_KEY environment variable.)");
     let todoist_api_object = TodoistAPI::new(token.as_str()).unwrap();
     match args {
         Cli::Get { category } => match category {
